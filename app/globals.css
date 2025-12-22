@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-night text-white font-sans leading-relaxed;
+}
+
+.glass-panel {
+  @apply bg-obsidian/80 backdrop-blur-xl border border-white/10 rounded-3xl;
+}
+
+.bg-primary {
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 166 244 / var(--tw-bg-opacity, 1));
+}
+
+.text-primary {
+  --tw-text-opacity: 1;
+  color: rgb(0 166 244 / var(--tw-text-opacity, 1));
+}
+
+.text-pink {
+  --tw-text-opacity: 1;
+  color: rgb(255 119 233 / var(--tw-text-opacity, 1));
+}
+
+.hover\:text-pink:hover {
+  --tw-text-opacity: 1;
+  color: rgb(255 119 233 / var(--tw-text-opacity, 1));
+}
