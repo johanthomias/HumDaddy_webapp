@@ -36,21 +36,22 @@ export default async function PublicWishlistPage({ params }: Props) {
               <img src={user.avatarUrl} alt={user.publicName || user.username} className="object-cover w-full h-full" />
             </div>
           )}
-          <div>
-            <p className="text-white/50 text-xs">wishlist /{user.username}</p>
-            <h1 className="text-4xl font-semibold">{user.publicName || user.username}</h1>
-            <p className="text-white/60 mt-3 max-w-2xl">{user.bio}</p>
-            <div className="flex flex-wrap gap-3 mt-4 text-sm text-white/60">
-              {user.socialLinks &&
-                Object.entries(user.socialLinks).map(([network, url]) =>
-                  url ? (
-                    <a key={network} href={url} className="underline" target="_blank" rel="noreferrer">
-                      {network}
-                    </a>
-                  ) : null,
-                )}
-            </div>
+          <div className="flex flex-wrap gap-3 mt-4 text-sm text-white/60">
+            {Object.entries(user.socialLinks ?? {})
+              .filter((entry) => typeof entry[1] === 'string' && entry[1].length > 0)
+              .map(([network, url]) => (
+                <a
+                  key={network}
+                  href={url as string}
+                  className="underline"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {network}
+                </a>
+              ))}
           </div>
+
         </header>
 
         <section className="grid gap-6 md:grid-cols-2">
@@ -59,8 +60,8 @@ export default async function PublicWishlistPage({ params }: Props) {
               gift.mediaUrls && gift.mediaUrls.length
                 ? gift.mediaUrls
                 : gift.imageUrl
-                ? [gift.imageUrl]
-                : [];
+                  ? [gift.imageUrl]
+                  : [];
             return (
               <div key={gift._id} className="glass-panel p-6 space-y-4">
                 <div className="flex items-center justify-between gap-4">
