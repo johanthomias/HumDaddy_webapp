@@ -57,6 +57,7 @@ export const MediaUploader = ({
         if (file.size > 5 * 1024 * 1024) {
           throw new Error('Chaque fichier doit faire moins de 5 Mo');
         }
+
         const url = await uploadToBlob(file);
         uploaded.push(url);
       }

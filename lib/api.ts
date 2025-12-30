@@ -20,6 +20,13 @@ export const AuthApi = {
     api.post<{ accessToken: string; user: User; isNewUser?: boolean }>('/v1/auth/verify-otp-sms', payload),
 };
 
+export const StripeApi = {
+  createConnectAccount: () => api.post<{ accountId: string }>('/v1/stripe/connect/create'),
+  createAccountLink: () => api.post<{ url: string }>('/v1/stripe/connect/create-account-link'),
+  status: () => api.get('/v1/stripe/connect/status'),
+};
+
+
 export const UserApi = {
   me: () => api.get<User>('/v1/users/me'),
   update: (payload: Partial<User>) => api.put<User>('/v1/users/me', payload),

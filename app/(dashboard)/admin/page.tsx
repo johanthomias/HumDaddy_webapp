@@ -22,7 +22,7 @@ export default function AdminPage() {
       </main>
     );
   }
-
+console.log(user)
   return (
     <main className="min-h-screen bg-night px-6 py-10">
       <div className="max-w-5xl mx-auto">

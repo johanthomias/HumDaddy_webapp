@@ -39,7 +39,7 @@ export default function ConnexionPage() {
         router.push(`/inscription?phone=${encodeURIComponent(phoneNumber)}`);
       } else {
         setMessage('Connexion réussie');
-        router.push('/dashboard');
+       // router.push('/dashboard');
       }
     } catch (error: any) {
       setMessage(error?.response?.data?.message || 'Code invalide ou expiré');

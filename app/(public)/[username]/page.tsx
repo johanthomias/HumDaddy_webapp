@@ -1,3 +1,5 @@
+import { CheckoutButton } from '@/components/public/checkout-button';
+
 interface Props {
   params: { username: string };
 }
@@ -97,17 +99,8 @@ export default async function PublicWishlistPage({ params }: Props) {
                   <span className="inline-flex rounded-full bg-green-500/10 px-4 py-2 text-xs font-semibold text-green-400">
                     Cadeau déjà financé
                   </span>
-                ) : gift.productLink ? (
-                  <a
-                    href={gift.productLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full inline-flex items-center justify-center rounded-full bg-accent-pink text-night py-3 font-semibold"
-                  >
-                    Voir le produit
-                  </a>
                 ) : (
-                  <button className="w-full rounded-full bg-accent-pink text-night py-3 font-semibold">Offrir</button>
+                  <CheckoutButton giftId={String(gift._id)} />
                 )}
               </div>
             );

@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 const getBackendBaseUrl = () =>
-  process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export async function POST(req: Request) {
   try {
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const file = formData.get('file');
     const folderType = String(formData.get('folderType') || '');
     const scope = String(formData.get('scope') || 'tmp');
-
+console.log("formData :", file)
     if (!(file instanceof File)) {
       return NextResponse.json({ message: 'Fichier manquant' }, { status: 400 });
     }

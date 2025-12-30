@@ -105,7 +105,7 @@ export const ProductModal = ({ gift, onClose }: ProductModalProps) => {
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold"
               >
-                Voir le lien produit <ExternalLink size={16} />
+                Voir le produit <ExternalLink size={16} />
               </a>
             )}
           </div>
