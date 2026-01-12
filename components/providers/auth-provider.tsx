@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { setAuthToken, UserApi } from '@/lib/api';
+import { setAuthToken, UserApi, AdminAuthApi } from '@/lib/api';
 import type { User } from '@/lib/types';
 
 type AuthContextValue = {
@@ -9,6 +9,7 @@ type AuthContextValue = {
   token: string | null;
   loading: boolean;
   login: (token: string, user: User) => void;
+  loginAdmin: (token: string, user: User) => void;
   logout: () => void;
   refreshProfile: () => Promise<void>;
 };
@@ -42,6 +43,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const loginAdmin = (newToken: string, newUser: User) => {
+    login(newToken, newUser);
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -49,13 +54,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('humdaddy_token');
       localStorage.removeItem('humdaddy_user');
+      window.location.href = '/connexion';
     }
   };
 
   const refreshProfile = async () => {
     if (!token) return;
     try {
-      const { data } = await UserApi.me();
+      let data: User;
+      if (user?.role === 'admin') {
+        const res = await AdminAuthApi.me();
+        data = res.data;
+      } else {
+        const res = await UserApi.me();
+        data = res.data;
+      }
       setUser(data);
       if (typeof window !== 'undefined') {
         localStorage.setItem('humdaddy_user', JSON.stringify(data));
@@ -66,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, refreshProfile }}>
+    <AuthContext.Provider value={{ user, token, loading, login, loginAdmin, logout, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

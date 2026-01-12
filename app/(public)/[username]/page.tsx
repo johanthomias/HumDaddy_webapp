@@ -1,10 +1,13 @@
+import Link from 'next/link';
 import { CheckoutButton } from '@/components/public/checkout-button';
+import type { Gift, User } from '@/lib/types';
 
 interface Props {
   params: { username: string };
+  searchParams?: { tab?: string };
 }
 
-async function fetchWishlist(username: string) {
+async function fetchWishlist(username: string): Promise<{ user: User; gifts: Gift[] } | null> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
   try {
     const res = await fetch(`${baseUrl}/v1/gifts/public/${username}`, { cache: 'no-store' });
@@ -16,7 +19,7 @@ async function fetchWishlist(username: string) {
   }
 }
 
-export default async function PublicWishlistPage({ params }: Props) {
+export default async function PublicWishlistPage({ params, searchParams }: Props) {
   const data = await fetchWishlist(params.username);
   if (!data) {
     return (
@@ -27,6 +30,13 @@ export default async function PublicWishlistPage({ params }: Props) {
   }
 
   const { user, gifts = [] } = data;
+  const hasPaid = gifts.some((g) => g.isPurchased);
+  const paidGifts = gifts.filter((g) => g.isPurchased);
+  const activeGifts = gifts.filter((g) => !g.isPurchased);
+  const tabActive = searchParams?.tab === 'paid' && hasPaid ? 'paid' : 'active';
+  const displayedGifts = tabActive === 'paid' ? paidGifts : activeGifts;
+  const paidCount = paidGifts.length;
+  const activeCount = activeGifts.length;
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-night to-obsidian px-6 py-12">
@@ -35,37 +45,63 @@ export default async function PublicWishlistPage({ params }: Props) {
           {user.avatarUrl && (
             <div className="relative w-32 h-32 rounded-full overflow-hidden border border-white/10">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={user.avatarUrl} alt={user.publicName || user.username} className="object-cover w-full h-full" />
+              <img
+                src={user.avatarUrl}
+                alt={user.publicName || user.username || ''}
+                className="object-cover w-full h-full"
+              />
             </div>
           )}
           <div className="flex flex-wrap gap-3 mt-4 text-sm text-white/60">
             {Object.entries(user.socialLinks ?? {})
               .filter((entry) => typeof entry[1] === 'string' && entry[1].length > 0)
               .map(([network, url]) => (
-                <a
-                  key={network}
-                  href={url as string}
-                  className="underline"
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <a key={network} href={url as string} className="underline" target="_blank" rel="noreferrer">
                   {network}
                 </a>
               ))}
           </div>
-
         </header>
 
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/${params.username}`}
+            className={`rounded-full px-4 py-2 text-sm border ${
+              tabActive === 'active' ? 'border-accent-pink bg-accent-pink/10 text-white' : 'border-white/10 text-white/60'
+            }`}
+          >
+            En cours ({activeCount})
+          </Link>
+          {hasPaid && (
+            <Link
+              href={`/${params.username}?tab=paid`}
+              className={`rounded-full px-4 py-2 text-sm border ${
+                tabActive === 'paid' ? 'border-accent-pink bg-accent-pink/10 text-white' : 'border-white/10 text-white/60'
+              }`}
+            >
+              Déjà payés ({paidCount})
+            </Link>
+          )}
+        </div>
+
+        {hasPaid && (
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white/70 text-sm">
+            Déjà {paidCount} caprice(s) offert(s) 💛
+          </div>
+        )}
+
         <section className="grid gap-6 md:grid-cols-2">
-          {gifts.map((gift: any) => {
+          {displayedGifts.map((gift) => {
             const media =
               gift.mediaUrls && gift.mediaUrls.length
                 ? gift.mediaUrls
                 : gift.imageUrl
-                  ? [gift.imageUrl]
-                  : [];
+                ? [gift.imageUrl]
+                : [];
+            const isPaid = Boolean(gift.isPurchased);
+            const cardClasses = `glass-panel p-6 space-y-4 ${isPaid ? 'opacity-40 grayscale' : ''}`;
             return (
-              <div key={gift._id} className="glass-panel p-6 space-y-4">
+              <div key={gift._id} className={cardClasses}>
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <h3 className="text-xl font-semibold">{gift.title}</h3>
@@ -81,7 +117,7 @@ export default async function PublicWishlistPage({ params }: Props) {
                     </div>
                     {media.length > 1 && (
                       <div className="flex gap-3">
-                        {media.slice(1).map((url: string) => (
+                        {media.slice(1).map((url) => (
                           <div key={url} className="flex-1 rounded-2xl overflow-hidden border border-white/10">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={url} alt={`${gift.title}-alt`} className="h-24 w-full object-cover" />
@@ -95,17 +131,23 @@ export default async function PublicWishlistPage({ params }: Props) {
                     Pas d&apos;image
                   </div>
                 )}
-                {gift.isPurchased ? (
-                  <span className="inline-flex rounded-full bg-green-500/10 px-4 py-2 text-xs font-semibold text-green-400">
-                    Cadeau déjà financé
-                  </span>
+                {isPaid ? (
+                  <div className="space-y-2">
+                    <button
+                      disabled
+                      className="w-full inline-flex items-center justify-center rounded-full bg-white/10 text-white/60 py-3 font-semibold cursor-not-allowed"
+                    >
+                      Déjà payé
+                    </button>
+                    <p className="text-xs text-white/50 text-center">Déjà offert par un daddy 💛</p>
+                  </div>
                 ) : (
                   <CheckoutButton giftId={String(gift._id)} />
                 )}
               </div>
             );
           })}
-          {gifts.length === 0 && <p className="text-white/50">Aucun cadeau pour le moment.</p>}
+          {displayedGifts.length === 0 && <p className="text-white/50">Aucun cadeau pour le moment.</p>}
         </section>
       </div>
     </main>

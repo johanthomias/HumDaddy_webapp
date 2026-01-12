@@ -11,6 +11,7 @@ export const WalletWidget = () => {
     const fetchWallet = async () => {
       try {
         const { data } = await WalletApi.summary();
+        console.log(data)
         setBalances(data.balances);
         setTransactions(data.transactions || []);
       } catch (error) {

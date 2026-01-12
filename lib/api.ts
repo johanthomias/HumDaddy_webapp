@@ -20,6 +20,12 @@ export const AuthApi = {
     api.post<{ accessToken: string; user: User; isNewUser?: boolean }>('/v1/auth/verify-otp-sms', payload),
 };
 
+export const AdminAuthApi = {
+  login: (payload: { email: string; password: string }) =>
+    api.post<{ accessToken: string; user: User }>('/v1/admin/auth/login', payload),
+  me: () => api.get<User>('/v1/admin/auth/me'),
+};
+
 export const StripeApi = {
   createConnectAccount: () => api.post<{ accountId: string }>('/v1/stripe/connect/create'),
   createAccountLink: () => api.post<{ url: string }>('/v1/stripe/connect/create-account-link'),
@@ -54,6 +60,11 @@ export const AdminApi = {
   transactions: () => api.get<Transaction[]>('/v1/admin/transactions'),
   cashouts: () => api.get<CashoutRequest[]>('/v1/cashouts/admin'),
   reports: () => api.get('/v1/reports/admin'),
+  updateVisibility: (id: string, isPublicVisible: boolean) =>
+    api.patch<User>(`/v1/admin/users/${id}/visibility`, { isPublicVisible }),
+  banUser: (id: string, reason?: string) => api.patch<User>(`/v1/admin/users/${id}/ban`, { reason }),
+  unbanUser: (id: string) => api.patch<User>(`/v1/admin/users/${id}/unban`),
+  pilotage: (range: '24h' | '7d' | '30d') => api.get(`/v1/admin/pilotage?range=${range}`),
 };
 
 export default api;
